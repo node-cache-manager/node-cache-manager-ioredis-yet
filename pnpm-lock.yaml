@@ -23,7 +23,7 @@ specifiers:
   vitest: 0.24.3
 
 dependencies:
-  cache-manager: 5.1.0
+  cache-manager: 5.1.1
   ioredis: 5.2.3
 
 devDependencies:
@@ -995,8 +995,8 @@ packages:
       yargs-parser: 20.2.9
     dev: true
 
-  /cache-manager/5.1.0:
-    resolution: {integrity: sha512-Ui6x3fZ48Qw/C26f5N835uiaNNbBEN889PwoEDaPq3OYw15F28q1ZTv9tX/MxcqHM0xzDkh4smvdGdYyCTkYiA==}
+  /cache-manager/5.1.1:
+    resolution: {integrity: sha512-xvbv24xOimcGNIna+LOoX0IV8ng6JrEhocYOpfaxPRx4fzyB9B91WYTj/kHcgt8ZPuDq8nt3T9XFh6NlWtA2Ew==}
     dependencies:
       lodash.clonedeep: 4.5.0
       lru-cache: 7.14.0
@@ -1170,8 +1170,8 @@ packages:
     engines: {node: '>=0.8'}
     dev: true
 
-  /cluster-key-slot/1.1.0:
-    resolution: {integrity: sha512-2Nii8p3RwAPiFwsnZvukotvow2rIHM+yQ6ZcBXGHdniadkYGZYiGmkHJIbZPIV9nfv7m/U1IPMVVcAhoWFeklw==}
+  /cluster-key-slot/1.1.1:
+    resolution: {integrity: sha512-rwHwUfXL40Chm1r08yrhU3qpUvdVlgkKNeyeGPOxnW8/SyVDvgRaed/Uz54AqWNaTCAThlj6QAs3TZcKI0xDEw==}
     engines: {node: '>=0.10.0'}
     dev: false
 
@@ -2782,7 +2782,7 @@ packages:
     engines: {node: '>=12.22.0'}
     dependencies:
       '@ioredis/commands': 1.2.0
-      cluster-key-slot: 1.1.0
+      cluster-key-slot: 1.1.1
       debug: 4.3.4
       denque: 2.1.0
       lodash.defaults: 4.2.0
