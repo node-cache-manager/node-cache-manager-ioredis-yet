@@ -1,4 +1,9 @@
-import Redis, { RedisOptions } from 'ioredis';
+import Redis, {
+  Cluster,
+  ClusterNode,
+  ClusterOptions,
+  RedisOptions,
+} from 'ioredis';
 
 import type { Cache, Store, Config } from 'cache-manager';
 
@@ -6,13 +11,13 @@ export type RedisCache = Cache<RedisStore>;
 
 export interface RedisStore extends Store {
   readonly isCacheable: (value: unknown) => boolean;
-  get client(): Redis;
+  get client(): Redis | Cluster;
 }
 
 const getVal = (value: unknown) => JSON.stringify(value) || '"undefined"';
 
 function builder(
-  redisCache: Redis,
+  redisCache: Redis | Cluster,
   reset: () => Promise<void>,
   keys: (pattern: string) => Promise<string[]>,
   options?: Config,
@@ -78,13 +83,27 @@ function builder(
   } as RedisStore;
 }
 
-export async function redisStore(options?: RedisOptions & Config) {
-  const redisCache = new Redis(options || {});
+export interface RedisClusterConfig {
+  nodes: ClusterNode[];
+  options?: ClusterOptions;
+}
+
+export async function redisStore(
+  options?: (RedisOptions | { clusterConfig: RedisClusterConfig }) & Config,
+) {
+  options ||= {};
+  const redisCache =
+    'clusterConfig' in options
+      ? new Redis.Cluster(
+          options.clusterConfig.nodes,
+          options.clusterConfig.options,
+        )
+      : new Redis(options);
 
   return redisInsStore(redisCache, options);
 }
 
-export function redisInsStore(redisCache: Redis, options?: Config) {
+export function redisInsStore(redisCache: Redis | Cluster, options?: Config) {
   const reset = async () => {
     await redisCache.flushall();
   };
