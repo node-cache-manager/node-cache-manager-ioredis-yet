@@ -4,22 +4,3 @@ services:
     image: redis
     ports:
       - '6379:6379'
-#  redis-c0:
-#    image: redis
-#    ports:
-#      - '6380:6379'
-#    extra_hosts:
-#      - host.docker.internal:host-gateway
-#    command:
-#      - redis-server
-#      - --cluster-enabled yes
-#
-#  redis-c1:
-#    image: redis
-#    ports:
-#      - '6381:6379'
-#    extra_hosts:
-#      - host.docker.internal:host-gateway
-#    command:
-#      - redis-server
-#      - --cluster-enabled yes
