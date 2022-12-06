@@ -1,12 +1,13 @@
 import { describe, expect, it, beforeEach } from 'vitest';
-import { Config, caching } from 'cache-manager';
-import { redisStore, RedisCache, redisInsStore } from '../src';
+import { caching } from 'cache-manager';
+import { redisStore, RedisCache, redisInsStore, Options } from '../src';
 import Redis, { RedisOptions } from 'ioredis';
 
 let redisCache: RedisCache;
 let customRedisCache: RedisCache;
+let nonThrowingRedisCache: RedisCache;
 
-const config: RedisOptions & Config = {
+const config: RedisOptions & Options = {
   port: 6379,
   host: 'localhost',
   ttl: 0,
@@ -14,9 +15,9 @@ const config: RedisOptions & Config = {
 
 beforeEach(async () => {
   redisCache = await caching(redisStore, config);
-
   await redisCache.reset();
-  const conf = {
+
+  const customConfig = {
     ...config,
     isCacheable: (val: unknown) => {
       if (val === undefined) {
@@ -29,9 +30,15 @@ beforeEach(async () => {
       return redisCache.store.isCacheable(val);
     },
   };
-  customRedisCache = await caching(redisStore, conf);
-
+  customRedisCache = await caching(redisStore, customConfig);
   await customRedisCache.reset();
+
+  const nonThrowingConfig = {
+    ...customConfig,
+    throwNoncacheable: false,
+  };
+  nonThrowingRedisCache = await caching(redisStore, nonThrowingConfig);
+  await nonThrowingRedisCache.reset();
 });
 
 describe('instance', () => {
@@ -81,6 +88,12 @@ describe('set', () => {
     await expect(
       customRedisCache.set('foobar', 'FooBarString'),
     ).rejects.toBeDefined();
+  });
+
+  it('should silently ignore invalid value if permitted by throwNoncacheable', async () => {
+    expect(customRedisCache.store.isCacheable('FooBarString')).toBe(false);
+    await nonThrowingRedisCache.set('foo1', 'FooBarString');
+    expect(nonThrowingRedisCache.get('foo1')).resolves.toBeUndefined();
   });
 
   it('should return an error if there is an error acquiring a connection', async () => {
@@ -151,6 +164,32 @@ describe('mset', () => {
       customRedisCache.store.mset([['foobar', 'FooBarString']]),
     ).rejects.toBeDefined();
   });
+
+  it('should silently ignore invalid values if permitted by throwNoncacheable', async () => {
+    expect(customRedisCache.store.isCacheable('FooBarString')).toBe(false);
+    await nonThrowingRedisCache.store.mset([
+      ['foo2', 'FooBarString'],
+      ['foo', 'bar'],
+    ]);
+    expect(
+      nonThrowingRedisCache.store.mget('foo', 'foo2'),
+    ).resolves.toStrictEqual(['bar', undefined]);
+  });
+
+  it('should silently ignore invalid values if permitted by throwNoncacheable (specific ttl)', async () => {
+    expect(customRedisCache.store.isCacheable('FooBarString')).toBe(false);
+    expect(customRedisCache.store.isCacheable('bar')).toBe(true);
+    await nonThrowingRedisCache.store.mset(
+      [
+        ['foo2', 'FooBarString'],
+        ['foo', 'bar'],
+      ],
+      1000,
+    );
+    expect(
+      nonThrowingRedisCache.store.mget('foo', 'foo2'),
+    ).resolves.toStrictEqual(['bar', undefined]);
+  }, 100000);
 
   it('should return an error if there is an error acquiring a connection', async () => {
     await redisCache.store.client.disconnect();
