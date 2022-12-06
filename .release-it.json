@@ -1,7 +1,4 @@
 {
-  "npm": {
-    "publish": false
-  },
   "git": {
     "commitMessage": "chore(release): ${version}"
   },
