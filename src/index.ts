@@ -35,7 +35,7 @@ function builder(
       if (!isCacheable(value))
         throw new Error(`"${value}" is not a cacheable value`);
       const t = ttl === undefined ? options?.ttl : ttl;
-      if (t) await redisCache.setex(key, t, getVal(value));
+      if (t) await redisCache.setex(key, t / 1000, getVal(value));
       else await redisCache.set(key, getVal(value));
     },
     async mset(args, ttl) {
