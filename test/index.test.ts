@@ -53,6 +53,12 @@ describe('set', () => {
   it('should store a value with a infinite ttl', () =>
     expect(redisCache.set('fooz', 'bar', 0)).resolves.toBeUndefined());
 
+  it('should store a value with a specific ttl', async () => {
+    await expect(redisCache.set('foo', 'bar', 1000)).resolves.toBeUndefined();
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await expect(redisCache.get('foo')).resolves.toBeUndefined();
+  });
+
   it('should not be able to store a null value (not cacheable)', () =>
     expect(redisCache.set('foo2', null)).rejects.toBeDefined());
 
@@ -213,9 +219,9 @@ describe('reset', () => {
 
 describe('ttl', () => {
   it('should retrieve ttl for a given key', async () => {
-    const ttl = 100;
+    const ttl = 1000;
     await redisCache.set('foo', 'bar', ttl);
-    await expect(redisCache.store.ttl('foo')).resolves.toEqual(ttl);
+    await expect(redisCache.store.ttl('foo')).resolves.toEqual(ttl / 1000);
 
     await redisCache.set('foo', 'bar', 0);
     await expect(redisCache.store.ttl('foo')).resolves.toEqual(-1);
