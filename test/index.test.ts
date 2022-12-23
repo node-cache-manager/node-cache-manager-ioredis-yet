@@ -289,9 +289,9 @@ describe('isCacheable', () => {
     expect(redisCache.store.isCacheable(null)).toBeFalsy();
   });
 
-  it('should avoid not cacheable error', () => {
+  it('should avoid not cacheable error', async () => {
     expect(redisCache.store.isCacheable(null)).toBeFalsy();
-    expect(
+    await expect(
       avoidNoCacheable(redisCache.set('foo', null)),
     ).resolves.toBeUndefined();
   });
