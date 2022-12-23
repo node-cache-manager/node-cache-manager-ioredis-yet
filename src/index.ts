@@ -16,6 +16,18 @@ export interface RedisStore extends Store {
 
 const getVal = (value: unknown) => JSON.stringify(value) || '"undefined"';
 
+export class NoCacheableError implements Error {
+  name = 'NoCacheableError';
+  constructor(public message: string) {}
+}
+
+export const avoidNoCacheable = async <T>(p: Promise<T>) => {
+  try {
+    return await p;
+  } catch (e) {
+    if (!(e instanceof NoCacheableError)) throw e;
+  }
+};
 function builder(
   redisCache: Redis | Cluster,
   reset: () => Promise<void>,
@@ -33,7 +45,7 @@ function builder(
     },
     async set(key, value, ttl) {
       if (!isCacheable(value))
-        throw new Error(`"${value}" is not a cacheable value`);
+        throw new NoCacheableError(`"${value}" is not a cacheable value`);
       const t = ttl === undefined ? options?.ttl : ttl;
       if (t) await redisCache.setex(key, Math.trunc(t / 1000), getVal(value));
       else await redisCache.set(key, getVal(value));
@@ -44,7 +56,9 @@ function builder(
         const multi = redisCache.multi();
         for (const [key, value] of args) {
           if (!isCacheable(value))
-            throw new Error(`"${getVal(value)}" is not a cacheable value`);
+            throw new NoCacheableError(
+              `"${getVal(value)}" is not a cacheable value`,
+            );
           multi.setex(key, Math.trunc(t / 1000), getVal(value));
         }
         await multi.exec();

@@ -1,6 +1,12 @@
 import { describe, expect, it, beforeEach } from 'vitest';
 import { Config, caching } from 'cache-manager';
-import { redisStore, RedisCache, redisInsStore } from '../src';
+import {
+  redisStore,
+  RedisCache,
+  redisInsStore,
+  avoidNoCacheable,
+  NoCacheableError,
+} from '../src';
 import Redis, { RedisOptions } from 'ioredis';
 
 let redisCache: RedisCache;
@@ -74,7 +80,7 @@ describe('set', () => {
 
   it('should not store an invalid value', () =>
     expect(redisCache.set('foo1', undefined)).rejects.toStrictEqual(
-      new Error('"undefined" is not a cacheable value'),
+      new NoCacheableError('"undefined" is not a cacheable value'),
     ));
 
   it('should store an undefined value if permitted by isCacheable', async () => {
@@ -281,6 +287,13 @@ describe('isCacheable', () => {
 
   it('should return false when the value is null', () => {
     expect(redisCache.store.isCacheable(null)).toBeFalsy();
+  });
+
+  it('should avoid not cacheable error', () => {
+    expect(redisCache.store.isCacheable(null)).toBeFalsy();
+    expect(
+      avoidNoCacheable(redisCache.set('foo', null)),
+    ).resolves.toBeUndefined();
   });
 });
 
