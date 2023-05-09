@@ -47,19 +47,20 @@ function builder(
       if (!isCacheable(value))
         throw new NoCacheableError(`"${value}" is not a cacheable value`);
       const t = ttl === undefined ? options?.ttl : ttl;
-      if (t) await redisCache.setex(key, Math.trunc(t / 1000), getVal(value));
+      if (t !== undefined && t !== 0)
+        await redisCache.set(key, getVal(value), 'PX', t);
       else await redisCache.set(key, getVal(value));
     },
     async mset(args, ttl) {
       const t = ttl === undefined ? options?.ttl : ttl;
-      if (t) {
+      if (t !== undefined && t !== 0) {
         const multi = redisCache.multi();
         for (const [key, value] of args) {
           if (!isCacheable(value))
             throw new NoCacheableError(
               `"${getVal(value)}" is not a cacheable value`,
             );
-          multi.setex(key, Math.trunc(t / 1000), getVal(value));
+          multi.set(key, getVal(value), 'PX', t);
         }
         await multi.exec();
       } else
