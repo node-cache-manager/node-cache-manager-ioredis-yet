@@ -35,8 +35,8 @@ devDependencies:
     specifier: 0.32.0
     version: 0.32.0(vitest@0.32.0)
   c8:
-    specifier: 7.14.0
-    version: 7.14.0
+    specifier: 8.0.0
+    version: 8.0.0
   dotenv-cli:
     specifier: 7.2.1
     version: 7.2.1
@@ -1308,9 +1308,9 @@ packages:
       run-applescript: 5.0.0
     dev: true
 
-  /c8@7.14.0:
-    resolution: {integrity: sha512-i04rtkkcNcCf7zsQcSv/T9EbUn4RXQ6mropeMcjFOsQXQ0iGLAr/xT6TImQg4+U9hmNpN9XdvPkjUL1IzbgxJw==}
-    engines: {node: '>=10.12.0'}
+  /c8@8.0.0:
+    resolution: {integrity: sha512-XHA5vSfCLglAc0Xt8eLBZMv19lgiBSjnb1FLAQgnwkuhJYEonpilhEB4Ea3jPAbm0FhD6VVJrc0z73jPe7JyGQ==}
+    engines: {node: '>=12'}
     hasBin: true
     dependencies:
       '@bcoe/v8-coverage': 0.2.3
