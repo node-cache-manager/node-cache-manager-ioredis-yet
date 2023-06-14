@@ -227,7 +227,7 @@ describe('ttl', () => {
   it('should retrieve ttl for a given key', async () => {
     const ttl = 1000;
     await redisCache.set('foo', 'bar', ttl);
-    await expect(redisCache.store.ttl('foo')).resolves.toEqual(ttl / 1000);
+    await expect(redisCache.store.ttl('foo')).resolves.toEqual(ttl);
 
     await redisCache.set('foo', 'bar', 0);
     await expect(redisCache.store.ttl('foo')).resolves.toEqual(-1);
