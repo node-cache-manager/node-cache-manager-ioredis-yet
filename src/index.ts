@@ -88,7 +88,7 @@ function builder(
     async del(key) {
       await redisCache.del(key);
     },
-    ttl: async (key) => redisCache.ttl(key),
+    ttl: async (key) => redisCache.pttl(key),
     keys: (pattern = '*') => keys(pattern),
     reset,
     isCacheable,
