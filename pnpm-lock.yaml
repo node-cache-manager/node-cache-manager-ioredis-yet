@@ -1,4 +1,4 @@
-lockfileVersion: '6.1'
+lockfileVersion: '6.0'
 
 settings:
   autoInstallPeers: true
@@ -6,7 +6,7 @@ settings:
 
 dependencies:
   cache-manager:
-    specifier: ^5.2.3
+    specifier: ^5.2.2
     version: 5.2.3
   ioredis:
     specifier: ^5.3.2
