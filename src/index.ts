@@ -120,7 +120,7 @@ export async function redisStore(
 
 export function redisInsStore(redisCache: Redis | Cluster, options?: Config) {
   const reset = async () => {
-    await redisCache.flushall();
+    await redisCache.flushdb();
   };
   const keys = (pattern: string) => redisCache.keys(pattern);
 
