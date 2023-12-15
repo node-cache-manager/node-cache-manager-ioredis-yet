@@ -9,6 +9,10 @@ import type { Cache, Store, Config } from 'cache-manager';
 
 export type RedisCache = Cache<RedisStore>;
 
+export interface CacheConfig extends Config {
+  transformValue?: (value: unknown) => string
+}
+
 export interface RedisStore extends Store {
   readonly isCacheable: (value: unknown) => boolean;
   get client(): Redis | Cluster;
@@ -32,10 +36,12 @@ function builder(
   redisCache: Redis | Cluster,
   reset: () => Promise<void>,
   keys: (pattern: string) => Promise<string[]>,
-  options?: Config,
+  options?: CacheConfig,
 ) {
   const isCacheable =
     options?.isCacheable || ((value) => value !== undefined && value !== null);
+
+  const transformValue = (value: unknown) => options?.transformValue(value) || getVal(value)
 
   return {
     async get<T>(key: string) {
@@ -48,8 +54,8 @@ function builder(
         throw new NoCacheableError(`"${value}" is not a cacheable value`);
       const t = ttl === undefined ? options?.ttl : ttl;
       if (t !== undefined && t !== 0)
-        await redisCache.set(key, getVal(value), 'PX', t);
-      else await redisCache.set(key, getVal(value));
+        await redisCache.set(key, transformValue(value), 'PX', t);
+      else await redisCache.set(key, transformValue(value));
     },
     async mset(args, ttl) {
       const t = ttl === undefined ? options?.ttl : ttl;
@@ -58,17 +64,17 @@ function builder(
         for (const [key, value] of args) {
           if (!isCacheable(value))
             throw new NoCacheableError(
-              `"${getVal(value)}" is not a cacheable value`,
+              `"${transformValue(value)}" is not a cacheable value`,
             );
-          multi.set(key, getVal(value), 'PX', t);
+          multi.set(key, transformValue(value), 'PX', t);
         }
         await multi.exec();
       } else
         await redisCache.mset(
           args.flatMap(([key, value]) => {
             if (!isCacheable(value))
-              throw new Error(`"${getVal(value)}" is not a cacheable value`);
-            return [key, getVal(value)] as [string, string];
+              throw new Error(`"${transformValue(value)}" is not a cacheable value`);
+            return [key, transformValue(value)] as [string, string];
           }),
         );
     },
