@@ -328,17 +328,32 @@ describe('wrap function', () => {
 });
 
 describe('transformValue', () => {
-  it('should return JSON.Stringify result when transformValue is not passed', () => {
-    expect(redisCache.set("foobar", {foo:'bar'})).resolves.toBeUndefined();
-    expect(redisCache.get("foobar")).toStrictEqual("{foo:'bar'}");
+  it('should return JSON.Stringify result when transformValue is not passed', async () => {
+    await expect(
+      redisCache.set('foobar', { foo: 'bar' }),
+    ).resolves.toBeUndefined();
+    expect(await redisCache.get('foobar')).toStrictEqual({ foo: 'bar' });
   });
 
-  it('should use custom transformValue function', () => {
+  it('should use custom transformValue function', async () => {
     // transform all value belonging to the key "foo" into "foo" as well
-    const transformValue = (value) => JSON.stringify(value, (key,value) => key === "foo"? "foo": value)
-    const customRedisCacheWithTransformValue = await caching(redisStore, {transformValue});
-    expect(customRedisCacheWithTransformValue.set("foobar", {foo:'bar'})).resolves.toBeUndefined();
-    expect(customRedisCacheWithTransformValue.get("foobar")).toStrictEqual("{foo:'foo'}");
-  });
+    const transformValue = (value: unknown) =>
+      JSON.stringify(value, (key, value) => (key === 'foo' ? 'foo' : value));
+    const instance = new Redis(config || {});
+    const customRedisCacheWithTransformValue = await caching(() =>
+      redisInsStore(instance, { transformValue }),
+    );
 
+    await expect(
+      customRedisCacheWithTransformValue.set('foobar', {
+        foo: 'bar',
+      }),
+    ).resolves.toBeUndefined();
+
+    expect(
+      await customRedisCacheWithTransformValue.get('foobar'),
+    ).toStrictEqual({
+      foo: 'foo',
+    });
+  });
 });

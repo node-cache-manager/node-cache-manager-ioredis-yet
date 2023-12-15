@@ -10,7 +10,7 @@ import type { Cache, Store, Config } from 'cache-manager';
 export type RedisCache = Cache<RedisStore>;
 
 export interface CacheConfig extends Config {
-  transformValue?: (value: unknown) => string
+  transformValue?: (value: unknown) => string;
 }
 
 export interface RedisStore extends Store {
@@ -41,7 +41,9 @@ function builder(
   const isCacheable =
     options?.isCacheable || ((value) => value !== undefined && value !== null);
 
-  const transformValue = (value: unknown) => options?.transformValue(value) || getVal(value)
+  const transformValue = (value: unknown) =>
+    (options?.transformValue && options?.transformValue(value)) ||
+    getVal(value);
 
   return {
     async get<T>(key: string) {
@@ -73,7 +75,9 @@ function builder(
         await redisCache.mset(
           args.flatMap(([key, value]) => {
             if (!isCacheable(value))
-              throw new Error(`"${transformValue(value)}" is not a cacheable value`);
+              throw new Error(
+                `"${transformValue(value)}" is not a cacheable value`,
+              );
             return [key, transformValue(value)] as [string, string];
           }),
         );
@@ -110,7 +114,8 @@ export interface RedisClusterConfig {
 }
 
 export async function redisStore(
-  options?: (RedisOptions | { clusterConfig: RedisClusterConfig }) & Config,
+  options?: (RedisOptions | { clusterConfig: RedisClusterConfig }) &
+    CacheConfig,
 ) {
   options ||= {};
   const redisCache =
@@ -124,7 +129,10 @@ export async function redisStore(
   return redisInsStore(redisCache, options);
 }
 
-export function redisInsStore(redisCache: Redis | Cluster, options?: Config) {
+export function redisInsStore(
+  redisCache: Redis | Cluster,
+  options?: CacheConfig,
+) {
   const reset = async () => {
     await redisCache.flushdb();
   };
