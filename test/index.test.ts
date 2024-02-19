@@ -143,16 +143,17 @@ describe('mset', () => {
     ]);
   });
 
-  it('should store a Date', async () => {
+  it('should store Date and Bigint', async () => {
     const date = new Date();
+    const bigint = BigInt(100);
 
     await redisCache.store.mset([
       ['foo', date],
-      ['foo2', date],
+      ['foo2', bigint],
     ]);
     await expect(redisCache.store.mget('foo', 'foo2')).resolves.toStrictEqual([
       date,
-      date,
+      bigint,
     ]);
   });
 
@@ -167,7 +168,7 @@ describe('mset', () => {
     ]);
     await expect(
       customRedisCache.store.mget('foo3', 'foo4'),
-    ).resolves.toStrictEqual(['undefined', 'undefined']);
+    ).resolves.toStrictEqual([undefined, undefined]);
   });
 
   it('should not store a value disallowed by isCacheable', async () => {
