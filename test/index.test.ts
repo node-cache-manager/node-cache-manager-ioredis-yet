@@ -143,6 +143,19 @@ describe('mset', () => {
     ]);
   });
 
+  it('should store a Date', async () => {
+    const date = new Date();
+
+    await redisCache.store.mset([
+      ['foo', date],
+      ['foo2', date],
+    ]);
+    await expect(redisCache.store.mget('foo', 'foo2')).resolves.toStrictEqual([
+      date,
+      date,
+    ]);
+  });
+
   it('should not store an invalid value', () =>
     expect(redisCache.store.mset([['foo1', undefined]])).rejects.toBeDefined());
 
