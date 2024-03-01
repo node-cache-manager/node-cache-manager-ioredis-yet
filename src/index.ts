@@ -5,6 +5,12 @@ import Redis, {
   RedisOptions,
 } from 'ioredis';
 
+import telejson from 'telejson';
+
+const stringify = (value: unknown) => telejson.stringify({ v: value });
+
+const parse = (value: string) => telejson.parse(value)?.v;
+
 import type { Cache, Store, Config } from 'cache-manager';
 
 export type RedisCache = Cache<RedisStore>;
@@ -14,7 +20,7 @@ export interface RedisStore extends Store {
   get client(): Redis | Cluster;
 }
 
-const getVal = (value: unknown) => JSON.stringify(value) || '"undefined"';
+const getVal = (value: unknown) => stringify(value);
 
 export class NoCacheableError implements Error {
   name = 'NoCacheableError';
@@ -41,7 +47,7 @@ function builder(
     async get<T>(key: string) {
       const val = await redisCache.get(key);
       if (val === undefined || val === null) return undefined;
-      else return JSON.parse(val) as T;
+      else return parse(val) as T;
     },
     async set(key, value, ttl) {
       if (!isCacheable(value))
@@ -77,9 +83,7 @@ function builder(
         .mget(args)
         .then((x) =>
           x.map((x) =>
-            x === null || x === undefined
-              ? undefined
-              : (JSON.parse(x) as unknown),
+            x === null || x === undefined ? undefined : (parse(x) as unknown),
           ),
         ),
     async mdel(...args) {
