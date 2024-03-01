@@ -7,5 +7,6 @@ dist
 package-lock.json
 .idea
 .eslintcache
-
+pnpm-lock.yaml
+yarn.lock
 *.log
