@@ -6,12 +6,16 @@
       "email": "dabroek@gmail.com"
     },
     {
+      "name": "Jared Wray",
+      "email": "me@jaredwray.com"
+    },
+    {
       "name": "Juan Aguilar Santillana",
       "email": "mhpoin@gmail.com"
     }
   ],
   "description": "Redis store for node-cache-manager updated",
-  "version": "1.2.2",
+  "version": "2.0.0",
   "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
