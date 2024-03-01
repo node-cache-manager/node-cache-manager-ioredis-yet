@@ -1,40 +1,37 @@
+name: test
+
 on:
-  - push
-  - pull_request
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        node-version: ['18', '20']
+
     steps:
-      - uses: actions/checkout@v4
-      - name: Build the stack
-        run: docker-compose up -d
-
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v2.4.0
-        name: Install pnpm
-        id: pnpm-install
-        with:
-          version: 8
-          run_install: false
-
-      - name: Install Node.js
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
-          node-version: lts/gallium
-          cache: pnpm
+          node-version: ${{ matrix.node-version }}
+
+      - name: Docker Redis
+        run: docker-compose up -d
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npm install
 
       - name: check
-        run: pnpm check
+        run: npm run check
 
       - name: test
-        run: pnpm test -- --coverage
+        run: npm run test
 
       - name: Codecov
         uses: codecov/codecov-action@v3
