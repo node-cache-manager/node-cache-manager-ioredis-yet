@@ -5,7 +5,7 @@ import Redis, {
   RedisOptions,
 } from 'ioredis';
 
-import telejson from 'telejson';
+import * as telejson from 'telejson';
 
 const stringify = (value: unknown) => telejson.stringify({ v: value });
 
