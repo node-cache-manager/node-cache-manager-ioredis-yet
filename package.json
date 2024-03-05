@@ -15,7 +15,7 @@
     }
   ],
   "description": "Redis store for node-cache-manager updated",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -23,6 +23,11 @@
     "type": "git",
     "url": "https://github.com/node-cache-manager/node-cache-manager-ioredis-yet.git"
   },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
   "keywords": [
     "cache-manager",
     "ioredis",
