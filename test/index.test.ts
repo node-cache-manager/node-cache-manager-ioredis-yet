@@ -99,6 +99,25 @@ describe('set', () => {
     await redisCache.store.client.disconnect();
     await expect(redisCache.set('foo', 'bar')).rejects.toBeDefined();
   });
+
+  it('should store deep nested objects', async () => {
+    // create a 1000-level deep nested object
+    let deepObj = {};
+    for (let i = 0; i < 999; i++) {
+      deepObj = { foo: deepObj };
+    }
+
+    await redisCache.set('foo', deepObj);
+    await expect(redisCache.get('foo')).resolves.toEqual(deepObj);
+  });
+
+  it('should store cyclic data structure', async () => {
+    const obj: Record<string, unknown> = {};
+    obj['foo'] = obj;
+
+    await redisCache.set('foo', obj);
+    await expect(redisCache.get('foo')).resolves.toEqual(obj);
+  });
 });
 
 describe('mset', () => {
