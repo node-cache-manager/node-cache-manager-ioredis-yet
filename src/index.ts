@@ -7,7 +7,8 @@ import Redis, {
 
 import * as telejson from 'telejson';
 
-const stringify = (value: unknown) => telejson.stringify({ v: value });
+const stringify = (value: unknown) =>
+  telejson.stringify({ v: value }, { maxDepth: Infinity });
 
 const parse = (value: string) => telejson.parse(value)?.v;
 
